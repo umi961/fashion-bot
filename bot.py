@@ -5,7 +5,8 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart, Command
 from aiogram.types import (Message, InlineKeyboardMarkup, InlineKeyboardButton,
-    WebAppInfo, CallbackQuery, ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove)
+    WebAppInfo, CallbackQuery, ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove,
+    BotCommand, BotCommandScopeChat, BotCommandScopeDefault)
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
@@ -1222,9 +1223,41 @@ async def unknown_msg(msg: Message):
             reply_markup=main_kb()
         )
 
+# ── BOT COMMANDS MENU ─────────────────────────────────────────────────────────
+async def set_commands():
+    # Oddiy foydalanuvchilar uchun
+    user_commands = [
+        BotCommand(command="start",  description="🏠 Bosh sahifa"),
+        BotCommand(command="help",   description="📞 Yordam va ma'lumot"),
+    ]
+    await bot.set_my_commands(user_commands, scope=BotCommandScopeDefault())
+
+    # Admin uchun alohida buyruqlar ro'yxati
+    admin_commands = [
+        BotCommand(command="start",      description="🏠 Bosh sahifa"),
+        BotCommand(command="admin",      description="👑 Admin panel"),
+        BotCommand(command="neworders",  description="🆕 Yangi buyurtmalar"),
+        BotCommand(command="stats",      description="📊 Statistika"),
+        BotCommand(command="top",        description="🏆 Eng ko'p sotilganlar"),
+        BotCommand(command="search",     description="🔍 Mahsulot qidirish"),
+        BotCommand(command="user",       description="👤 Foydalanuvchi: /user ID"),
+        BotCommand(command="ban",        description="🚫 Bloklash: /ban ID"),
+        BotCommand(command="unban",      description="✅ Blokni ochish: /unban ID"),
+        BotCommand(command="setprice",   description="💰 Narx: /setprice ID narx"),
+        BotCommand(command="flash",      description="⚡ Flash sale: /flash ID % soat"),
+        BotCommand(command="stopflash",  description="🛑 Flash stop: /stopflash ID"),
+        BotCommand(command="addvip",     description="👑 VIP berish: /addvip ID"),
+        BotCommand(command="addpoints",  description="⭐ Ball: /addpoints ID miqdor"),
+        BotCommand(command="promo",      description="🏷️ Promo: /promo KOD % maks"),
+        BotCommand(command="help",       description="📋 Barcha buyruqlar"),
+        BotCommand(command="cancel",     description="❌ Amalni bekor qilish"),
+    ]
+    await bot.set_my_commands(admin_commands, scope=BotCommandScopeChat(chat_id=ADMIN_ID))
+
 # ── MAIN ──────────────────────────────────────────────────────────────────────
 async def main():
     init_db()
+    await set_commands()
     await dp.start_polling(bot, allowed_updates=["message", "callback_query"])
 
 if __name__ == "__main__":
